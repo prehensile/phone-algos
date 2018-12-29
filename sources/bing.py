@@ -108,7 +108,7 @@ def get_results_for_stems_and_subject( query_type=None, stems=None, subject=None
 
     if subject is not None:
         if len(q) > 0:
-            q = '({}) "{}"'.format(q, subject)
+            q = '({}) AND "{}"'.format(q, subject)
         else:
             q = subject
 
@@ -138,7 +138,8 @@ def get_results_for_stems_and_subject( query_type=None, stems=None, subject=None
 
 def get_results_for_subject( stems=None, subject=None ):
     return get_results_for_stems_and_subject(
-        query_type = K_QUERY_TYPE_WEB,
+        # query_type = K_QUERY_TYPE_WEB,
+        query_type = K_QUERY_TYPE_NEWS,
         stems = stems,
         subject = subject
     )
