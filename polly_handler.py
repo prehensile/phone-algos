@@ -13,15 +13,13 @@ def cache_path( fn ):
     )
 
 
-vowels = ['a', 'e', 'i', 'o', 'u']
+consonants = "bcdfghjklmnpqrstvwxyz"
 file_ext = "mp3"
 
 def path_for_sentence( sentence, voice_id ):
     
     fn = "%s%s" % (sentence, voice_id)
-    fn = fn.lower()
-    fn = ''.join([l for l in fn if l in string.ascii_lowercase])
-    fn = ''.join([l for l in fn if l not in vowels])
+    fn = ''.join([l for l in fn.lower() if l in consonants])
     
     return cache_path( "%s.%s" % (fn,file_ext) )
 
