@@ -2,21 +2,25 @@ from datetime import datetime
 import subprocess
 import random
 
+import sim800
+
 import messages
-import bing_handler
 import writer   
 import polly_handler
+import speech_handler
+import sound_handler
 
 
 # TODO: init modem
+modem = sim800.SIM800()
 
-# TODO: wait for call
 
-
-def play_file( pth_file ):
-    args = [ "mplayer", pth_file ]
-    subprocess.call( args )
-
+def play_sentences( sentences ):
+    files = polly_handler.render_sentences(
+        sentences
+    )
+    sound_handler.play_files( files )
+    
 
 def handle_call():
 
@@ -26,32 +30,36 @@ def handle_call():
     # generate sentence texts
     sentences = [
         messages.greeting(),            # 'good morning.' 
-        "We are the algorithms.",
-        messages.random_statement(),
-        generated_sentences[0],
-        generated_sentences[1],
-        generated_sentences[2],
-        messages.random_statement(),    
-        messages.prompt                 # 'what would you like to know about?'
+        "We are the algorithms."
+        # generated_sentences[0],
+        # messages.random_statement(),
+        # generated_sentences[1],
+        # generated_sentences[2],
+        # messages.random_statement()
     ]
 
-    print( sentences )
+    play_sentences( sentences )
     
-    # get filenames for rendered sentences
-    fn_sentences = polly_handler.render_sentences(
-        sentences
-    )
+    while True:
 
-    # play those files!
-    for fn_sentence in fn_sentences:
-        play_file( fn_sentence )
-    
-    # wait for the user to say something
-    # TODO
-    
-    # generate some statements about that thing
-    # TODO
+        play_sentences( [messages.prompt] )  # 'what would you like to know about?'
+
+        # wait for the user to say something
+        sh = speech_handler.SpeechHandler()
+        transcribed = sh.recognize()
+
+        if transcribed is not None:
+            # generate some statements about that thing
+            sentences = writer.get_statements_for_subject( transcribed )
+            random.shuffle( sentences )
+            play_sentences( sentences[:4] )
+
+
+def runloop():
+    while True:
+        sim800
 
 
 if __name__ == "__main__":
     handle_call()
+
