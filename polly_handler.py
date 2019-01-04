@@ -25,8 +25,16 @@ def path_for_sentence( sentence, voice_id ):
 
 
 def get_client():
+
+    creds = None
+    with open( "config/aws.json" ) as fp:
+        creds = json.load( fp )
+    print( creds )
+
     return boto3.Session(
-        region_name='eu-west-1'
+        region_name='eu-west-1',
+        aws_access_key_id = creds['access_key_id'],
+        aws_secret_access_key = creds['secret_access_key']
     ).client('polly')
 
 
