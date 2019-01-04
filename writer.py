@@ -3,7 +3,7 @@ import math
 
 from textblob import TextBlob
 
-import bing_handler
+from sources import bing
 
 
 default_stems = [
@@ -123,7 +123,7 @@ def process_results( results, stems ):
 
 
 def get_opening_statements():
-    bing_results = bing_handler.get_opening_results(
+    bing_results = bing.get_opening_results(
         stems = default_stems
     )
     statements = process_results( bing_results, default_stems )
@@ -131,7 +131,7 @@ def get_opening_statements():
 
 
 def get_statements_for_subject( subject ):
-    bing_results = bing_handler.get_results_for_subject(
+    bing_results = bing.get_results_for_subject(
         stems = default_stems,
         subject = subject
     )
@@ -141,4 +141,6 @@ def get_statements_for_subject( subject ):
 
 if __name__ == "__main__":
     #print( get_opening_statements() )
-    print( get_statements_for_subject("love") )
+    import sys
+    subject = sys.argv[1]
+    print( get_statements_for_subject( subject ) )
