@@ -1,7 +1,3 @@
-from datetime import datetime
-import subprocess
-
-
 import call_handler
 
 from sim800 import iteadsim800
