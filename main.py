@@ -1,3 +1,5 @@
+from multiprocessing import Process
+
 import call_handler
 
 from sim800 import iteadsim800
@@ -5,7 +7,22 @@ from sim800 import iteadsim800
 
 SOUND_DEVICE = "alsa:device=hw=1.0"
 
-handler = call_handler.CallHandler( sound_device=SOUND_DEVICE )
+
+class CallHandlerProcess( Process ):
+    
+    def __init__( self, sound_device=None ):
+        super( CallHandlerProcess, self ).__init__()
+        self._call_handler = call_handler.CallHandler(
+            sound_device = sound_device
+        )
+
+    def run( self ):
+        self._call_handler.handle_call()
+
+
+handler_process = CallHandlerProcess(
+    sound_device=SOUND_DEVICE
+)
 
 
 def runloop():
@@ -23,7 +40,8 @@ def runloop():
         modem.answerIncomingCall()
 
         # interact!
-        handler.handle_call()
+        handler_process.start()
+        handler_process.join()
 
         print( "Hang up!" )
         modem.hangUpCall()
@@ -31,5 +49,9 @@ def runloop():
 
 if __name__ == "__main__":
     # handle_call()
-    runloop()
+    # runloop()
+    print( "handler process start!")
+    handler_process.start()
+    handler_process.join()
+    print( "handler process done")
 
