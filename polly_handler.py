@@ -2,8 +2,26 @@ import string
 import os
 import json
 import random
+import hashlib
+from collections import namedtuple
+import glob
 
 import boto3
+
+
+AudioFormat = namedtuple( "AudioFormat", ["OutputFormat","file_extension"] )
+
+format_ogg = AudioFormat(
+    OutputFormat = "ogg_vorbis",
+    file_extension = "ogg"
+)
+
+format_mp3 = AudioFormat(
+    OutputFormat = "mp3",
+    file_extension = "mp3"
+)
+
+AUDIO_FORMAT_DEFAULT = format_ogg
 
 
 def cache_path( fn ):
@@ -13,15 +31,19 @@ def cache_path( fn ):
     )
 
 
-consonants = "bcdfghjklmnpqrstvwxyz"
-file_ext = "mp3"
+def hash_for_string( str_in ):
+    return hashlib.md5( str_in.encode('utf-8') ).hexdigest()
 
-def path_for_sentence( sentence, voice_id ):
+
+def path_for_sentence( sentence, voice_id, audio_format ):
     
-    fn = "%s%s" % (sentence, voice_id)
-    fn = ''.join([l for l in fn.lower() if l in consonants])
+    fn = "{}.{}.{}".format(
+        hash_for_string( sentence ),
+        voice_id,
+        audio_format.file_extension
+    )
     
-    return cache_path( "%s.%s" % (fn,file_ext) )
+    return cache_path( fn )
 
 
 def get_client():
@@ -64,30 +86,34 @@ def random_voice():
     return random.choice( voices )
 
 
-def render_sentence( sentence, voice_id="Brian" ):
+def render_sentence( sentence, voice_id="Brian", audio_format=AUDIO_FORMAT_DEFAULT ):
 
     polly_client = get_client()
 
     response = polly_client.synthesize_speech(
         VoiceId = voice_id,
-        OutputFormat = "mp3", 
+        OutputFormat = audio_format.OutputFormat, 
         Text = sentence
     )
 
-    fn = path_for_sentence( sentence, voice_id )
+    fn = path_for_sentence( sentence, voice_id, audio_format )
 
     with open( fn, 'wb' ) as fp:
         fp.write( response['AudioStream'].read() )
 
     return fn
 
-def render_sentences( sentences ): 
+
+def render_sentences( sentences, audio_format=AUDIO_FORMAT_DEFAULT ): 
     rendered_paths = []
     for sentence in sentences:
-        rendered_paths.append( 
-            render_sentence(
-                sentence,
-                voice_id = random_voice()
-            )
-        )
+
+        fn = render_sentence(
+            sentence,
+            voice_id = random_voice(),
+            audio_format = audio_format
+        ) 
+
+        rendered_paths.append(fn)
+    
     return rendered_paths
