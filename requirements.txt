@@ -6,7 +6,7 @@ beautifulsoup4==4.6.3
 boto3==1.9.65
 botocore==1.12.65
 cachetools==3.0.0
-certifi==2018.11.29
+certifi==2022.12.7
 cffi==1.11.5
 chardet==3.0.4
 constantly==15.1.0
